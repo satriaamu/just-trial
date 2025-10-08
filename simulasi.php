@@ -1,8 +1,18 @@
 <?php
 session_start();
-$conn = new mysqli("localhost", "root", "", "mokobang");
-if ($conn->connect_error) { die("Koneksi gagal: " . $conn->connect_error); }
-$conn->set_charset("utf8mb4");
+$db_host = 'db.fr-pari1.bengt.wasmernet.com';
+$db_port = 10272;
+$db_name = 'mokobang';
+$db_user = '67cf073f7d048000d4a691b28792';
+$db_pass = '068e67cf-073f-7e33-8000-c7299acc4133';
+
+try {
+    $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
+    $pdo = new PDO($dsn, $db_user, $db_pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Koneksi gagal: " . $e->getMessage());
+}
 
 $product_id = intval($_GET['product_id'] ?? 0);
 if ($product_id === 0) {
