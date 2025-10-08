@@ -6,8 +6,14 @@ header('Content-Type: application/json');
 $response = [];
 
 try {
-    // --- Koneksi Database ---
-    $conn = new mysqli("localhost", "root", "", "mokobang");
+    // --- Koneksi Database BARU ---
+    $servername = "db.fr-pari1.bengt.wasmernet.com";
+    $username = "67cf073f7d048000d4a691b28792";
+    $password = "068e67cf-073f-7e33-8000-c7299acc4133";
+    $dbname = "mokobang";
+    $port = 10272;
+
+    $conn = new mysqli($servername, $username, $password, $dbname, $port);
     if ($conn->connect_error) { throw new Exception('Koneksi Database Gagal', 500); }
     $conn->set_charset("utf8mb4");
 

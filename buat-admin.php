@@ -14,10 +14,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         // Koneksi ke database
-        $conn = new mysqli("localhost", "root", "", "mokobang");
-        if ($conn->connect_error) {
-            $pesan = '<div class="message error">Koneksi database gagal: ' . $conn->connect_error . '</div>';
-        } else {
+        $db_host = 'db.fr-pari1.bengt.wasmernet.com';
+        $db_port = 10272;
+        $db_name = 'mokobang';
+        $db_user = '67cf073f7d048000d4a691b28792';
+        $db_pass = '068e67cf-073f-7e33-8000-c7299acc4133';
+
+        try {
+             $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
+            $pdo = new PDO($dsn, $db_user, $db_pass);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Koneksi gagal: " . $e->getMessage());
+        }   
             // Cek apakah username sudah ada
             $stmt_check = $conn->prepare("SELECT id FROM admins WHERE username = ?");
             $stmt_check->bind_param("s", $username);
@@ -42,7 +51,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $conn->close();
         }
     }
-}
 ?>
 <!DOCTYPE html>
 <html lang="id">

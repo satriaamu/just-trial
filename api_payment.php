@@ -22,12 +22,19 @@ if (empty($virtual_account)) {
     die(json_encode(['status' => 'error', 'message' => 'Nomor Virtual Account tidak boleh kosong.']));
 }
 
-$conn = new mysqli("localhost", "root", "", "mokobang");
-if ($conn->connect_error) {
-    http_response_code(500);
-    die(json_encode(['status' => 'error', 'message' => 'Koneksi database gagal.']));
+$db_host = 'db.fr-pari1.bengt.wasmernet.com';
+$db_port = 10272;
+$db_name = 'mokobang';
+$db_user = '67cf073f7d048000d4a691b28792';
+$db_pass = '068e67cf-073f-7e33-8000-c7299acc4133';
+
+try {
+    $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
+    $pdo = new PDO($dsn, $db_user, $db_pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Koneksi gagal: " . $e->getMessage());
 }
-$conn->set_charset("utf8mb4");
 
 // Fungsi addLog disalin ke sini untuk digunakan
 function addLog($conn, $trxId, $sender, $message) {

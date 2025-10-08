@@ -9,7 +9,15 @@ if (isset($_SESSION['admin_id'])) {
 
 $error_message = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $conn = new mysqli("localhost", "root", "", "mokobang");
+    // -- KONEKSI DATABASE BARU (MANUAL) --
+    $servername = "db.fr-pari1.bengt.wasmernet.com";
+    $username = "67cf073f7d048000d4a691b28792";
+    $password = "068e67cf-073f-7e33-8000-c7299acc4133";
+    $dbname = "mokobang";
+    $port = 10272;
+
+    $conn = new mysqli($servername, $username, $password, $dbname, $port);
+
     if ($conn->connect_error) {
         $error_message = "Koneksi ke database gagal.";
     } else {
