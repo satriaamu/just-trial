@@ -9,14 +9,15 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 // Data koneksi database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mokobang";
+$db_host = 'db.fr-pari1.bengt.wasmernet.com';
+$db_port = 10272;
+$db_name = 'mokobang';
+$db_user = '67cf073f7d048000d4a691b28792';
+$db_pass = '068e67cf-073f-7e33-8000-c7299acc4133';
 
-// Membuat koneksi dengan PDO untuk keamanan dan kemudahan
 try {
-    $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
+    $pdo = new PDO($dsn, $db_user, $db_pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Koneksi gagal: " . $e->getMessage());
