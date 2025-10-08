@@ -14,7 +14,9 @@ try {
     $pdo = new PDO($dsn, $db_user, $db_pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Koneksi gagal: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => "Koneksi gagal: " . $e->getMessage()]);
+    exit();
 }
 
 $action = $_GET['action'] ?? '';
@@ -23,19 +25,16 @@ $is_admin = isset($_SESSION['admin_id']);
 try {
     switch ($action) {
         case 'get_all_customs':
-            // Aksi ini hanya untuk admin
             if (!$is_admin) throw new Exception("Unauthorized", 403);
             
             $types_sql = "SELECT * FROM custom_types ORDER BY name ASC";
-            $types_result = $conn->query($types_sql);
+            $types_stmt = $pdo->query($types_sql);
             $types = [];
-            while ($type = $types_result->fetch_assoc()) {
-                $options_sql = "SELECT * FROM custom_options WHERE type_id = {$type['id']} ORDER BY name ASC";
-                $options_result = $conn->query($options_sql);
-                $options = [];
-                while ($option = $options_result->fetch_assoc()) {
-                    $options[] = $option;
-                }
+            while ($type = $types_stmt->fetch(PDO::FETCH_ASSOC)) {
+                $options_sql = "SELECT * FROM custom_options WHERE type_id = :type_id ORDER BY name ASC";
+                $options_stmt = $pdo->prepare($options_sql);
+                $options_stmt->execute([':type_id' => $type['id']]);
+                $options = $options_stmt->fetchAll(PDO::FETCH_ASSOC);
                 $type['options'] = $options;
                 $types[] = $type;
             }
@@ -43,48 +42,43 @@ try {
             break;
 
         case 'save_customs':
-            // Aksi ini hanya untuk admin
             if (!$is_admin) throw new Exception("Unauthorized", 403);
 
             $data = json_decode(file_get_contents('php://input'), true);
-            $conn->begin_transaction();
+            $pdo->beginTransaction();
             try {
                 foreach($data['types'] as $type) {
                     $current_type_id = $type['id'];
                     if ($type['id'] < 0) { // Tipe baru
-                        $stmt = $conn->prepare("INSERT INTO custom_types (name) VALUES (?)");
-                        $stmt->bind_param("s", $type['name']);
-                        $stmt->execute();
-                        $current_type_id = $stmt->insert_id;
+                        $stmt = $pdo->prepare("INSERT INTO custom_types (name) VALUES (?)");
+                        $stmt->execute([$type['name']]);
+                        $current_type_id = $pdo->lastInsertId();
                     } else { // Tipe yang sudah ada
-                        $stmt = $conn->prepare("UPDATE custom_types SET name = ? WHERE id = ?");
-                        $stmt->bind_param("si", $type['name'], $type['id']);
-                        $stmt->execute();
+                        $stmt = $pdo->prepare("UPDATE custom_types SET name = ? WHERE id = ?");
+                        $stmt->execute([$type['name'], $type['id']]);
                     }
                     
                     if (isset($type['options'])) {
                         foreach($type['options'] as $option) {
                             if ($option['id'] < 0) { // Opsi baru
-                                $stmt = $conn->prepare("INSERT INTO custom_options (type_id, name, price) VALUES (?, ?, ?)");
-                                $stmt->bind_param("isd", $current_type_id, $option['name'], $option['price']);
+                                $stmt = $pdo->prepare("INSERT INTO custom_options (type_id, name, price) VALUES (?, ?, ?)");
+                                $stmt->execute([$current_type_id, $option['name'], $option['price']]);
                             } else { // Opsi yang sudah ada
-                                $stmt = $conn->prepare("UPDATE custom_options SET name = ?, price = ? WHERE id = ?");
-                                $stmt->bind_param("sdi", $option['name'], $option['price'], $option['id']);
+                                $stmt = $pdo->prepare("UPDATE custom_options SET name = ?, price = ? WHERE id = ?");
+                                $stmt->execute([$option['name'], $option['price'], $option['id']]);
                             }
-                            $stmt->execute();
                         }
                     }
                 }
-                $conn->commit();
+                $pdo->commit();
                 $response = ['status' => 'success', 'message' => 'Kustomisasi berhasil disimpan.'];
             } catch (Exception $e) {
-                $conn->rollback();
+                $pdo->rollBack();
                 throw $e;
             }
             break;
 
         case 'get_product_customs':
-            // Aksi ini dapat diakses oleh siapa saja (termasuk pelanggan untuk simulasi)
             $product_id = intval($_GET['product_id'] ?? 0);
             if ($product_id === 0) throw new Exception("Invalid product ID", 400);
 
@@ -94,13 +88,12 @@ try {
                     JOIN product_custom_options pco ON o.id = pco.option_id
                     WHERE pco.product_id = ?";
             
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param("i", $product_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$product_id]);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             $custom_data = [];
-            while($row = $result->fetch_assoc()) {
+            foreach($result as $row) {
                 if (!isset($custom_data[$row['type_id']])) {
                     $custom_data[$row['type_id']] = [
                         'id' => $row['type_id'],
@@ -118,7 +111,6 @@ try {
             break;
             
         case 'get_products_for_option':
-            // Aksi ini hanya untuk admin
             if (!$is_admin) throw new Exception("Unauthorized", 403);
 
             $option_id = intval($_GET['option_id'] ?? 0);
@@ -128,19 +120,13 @@ try {
 
             // Ambil semua produk
             $products_sql = "SELECT id, tipe FROM katalog ORDER BY tipe ASC";
-            $products_result = $conn->query($products_sql);
-            $all_products = $products_result->fetch_all(MYSQLI_ASSOC);
+            $all_products = $pdo->query($products_sql)->fetchAll(PDO::FETCH_ASSOC);
 
             // Ambil ID produk yang sudah terkait dengan opsi ini
             $assoc_sql = "SELECT product_id FROM product_custom_options WHERE option_id = ?";
-            $stmt = $conn->prepare($assoc_sql);
-            $stmt->bind_param("i", $option_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $associated_product_ids = [];
-            while ($row = $result->fetch_assoc()) {
-                $associated_product_ids[] = $row['product_id'];
-            }
+            $stmt = $pdo->prepare($assoc_sql);
+            $stmt->execute([$option_id]);
+            $associated_product_ids = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 
             $response = [
                 'status' => 'success',
@@ -150,7 +136,6 @@ try {
             break;
             
         case 'save_products_for_option':
-            // Aksi ini hanya untuk admin
             if (!$is_admin) throw new Exception("Unauthorized", 403);
             
             $data = json_decode(file_get_contents('php://input'), true);
@@ -161,25 +146,23 @@ try {
                 throw new Exception("Option ID tidak valid", 400);
             }
 
-            $conn->begin_transaction();
+            $pdo->beginTransaction();
             try {
                 // Hapus semua asosiasi lama untuk opsi ini
-                $stmt_del = $conn->prepare("DELETE FROM product_custom_options WHERE option_id = ?");
-                $stmt_del->bind_param("i", $option_id);
-                $stmt_del->execute();
+                $stmt_del = $pdo->prepare("DELETE FROM product_custom_options WHERE option_id = ?");
+                $stmt_del->execute([$option_id]);
 
                 // Masukkan asosiasi baru yang dipilih
                 if (!empty($product_ids)) {
-                    $stmt_ins = $conn->prepare("INSERT INTO product_custom_options (product_id, option_id) VALUES (?, ?)");
+                    $stmt_ins = $pdo->prepare("INSERT INTO product_custom_options (product_id, option_id) VALUES (?, ?)");
                     foreach ($product_ids as $product_id) {
-                        $stmt_ins->bind_param("ii", $product_id, $option_id);
-                        $stmt_ins->execute();
+                        $stmt_ins->execute([$product_id, $option_id]);
                     }
                 }
-                $conn->commit();
+                $pdo->commit();
                 $response = ['status' => 'success', 'message' => 'Asosiasi produk berhasil diperbarui.'];
             } catch (Exception $e) {
-                $conn->rollback();
+                $pdo->rollBack();
                 throw $e;
             }
             break;
@@ -194,5 +177,5 @@ try {
 }
 
 echo json_encode($response);
-$conn->close();
+// Tidak perlu close koneksi PDO secara eksplisit
 ?>
