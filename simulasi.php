@@ -20,10 +20,10 @@ if ($product_id === 0) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT * FROM katalog WHERE id = ?");
-$stmt->bind_param("i", $product_id);
-$stmt->execute();
-$product = $stmt->get_result()->fetch_assoc();
+// Menggunakan PDO untuk mengambil data produk
+$stmt = $pdo->prepare("SELECT * FROM katalog WHERE id = ?");
+$stmt->execute([$product_id]);
+$product = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if(!$product) {
     header("Location: katalog.php");
