@@ -24,10 +24,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insert user data into database
     $sql = "INSERT INTO users (username, email, password) VALUES ('$username', '$email', '$hashed_password')";
 
-    if ($conn->query($sql) === TRUE) {
-        echo "Registration successful!";
-        header("Location: login"); // Redirect to login page
-    } else {
+if ($conn->query($sql) === TRUE) {
+    // BARIS 28: Anda mengirim output teks ke browser
+    echo "Registration successful!"; 
+    header("Location: login"); // Redirect to login page
+} else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
 
