@@ -32,38 +32,26 @@ if (!isset($_SESSION['user_id'])) {
 </head>
 <body>
     <div class="payment-container">
-        <div class="payment-header">
-            <h2>Selesaikan Pembayaran Anda</h2>
-        </div>
+        <div class="payment-header"><h2>Selesaikan Pembayaran Anda</h2></div>
         <div class="payment-body" id="paymentBox">
-            <p><strong>Nomor Tagihan:</strong> <span id="billingNumber">-</span></p>
+            <p><strong>Nomor Invoice:</strong> <span id="billingNumber">-</span></p>
             <p>Harga Deal: <strong id="dealPrice">-</strong></p>
             <p>Ongkos Kirim: <strong id="shippingCost">-</strong></p>
             <hr style="margin: 15px 0;">
             <p>Total Tagihan:</p>
             <div class="total-bill" id="totalBill">-</div>
-            
             <div class="va-box">
                 <p>Silakan transfer ke Virtual Account berikut:</p>
                 <div class="va-number" id="vaNumber">-</div>
                 <button class="copy-btn" onclick="copyVA()">Salin Nomor</button>
             </div>
-            
-            <div class="countdown-box">
-                <p>Batas waktu pembayaran:</p>
-                <div id="countdown">-</div>
-            </div>
-
+            <div class="countdown-box"><p>Batas waktu pembayaran:</p><div id="countdown">-</div></div>
             <p class="locked-info">Anda tidak dapat kembali ke halaman sebelumnya hingga transaksi selesai atau dibatalkan.</p>
         </div>
     </div>
-
     <script>
         const transactionId = new URLSearchParams(window.location.search).get('transaction_id');
-
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
-        }
+        function formatRupiah(angka) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); }
 
         async function fetchPaymentDetails() {
             const response = await fetch(`api_transaction.php?action=get_details&transaction_id=${transactionId}`);
@@ -80,11 +68,7 @@ if (!isset($_SESSION['user_id'])) {
                 const countdownElem = document.getElementById('countdown');
                 const interval = setInterval(() => {
                     const distance = deadline - new Date().getTime();
-                    if (distance < 0) {
-                        clearInterval(interval);
-                        countdownElem.textContent = "WAKTU PEMBAYARAN HABIS";
-                        return;
-                    }
+                    if (distance < 0) { clearInterval(interval); countdownElem.textContent = "WAKTU PEMBAYARAN HABIS"; return; }
                     const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -94,14 +78,9 @@ if (!isset($_SESSION['user_id'])) {
                  document.getElementById('paymentBox').innerHTML = '<h2>Tagihan tidak valid atau sudah dibayar.</h2><a href="history.php">Kembali ke Riwayat</a>';
             }
         }
-
-        function copyVA() {
-            navigator.clipboard.writeText(document.getElementById('vaNumber').textContent).then(() => alert('Nomor Virtual Account disalin!'));
-        }
-        
+        function copyVA() { navigator.clipboard.writeText(document.getElementById('vaNumber').textContent).then(() => alert('Nomor Virtual Account disalin!')); }
         history.pushState(null, null, location.href);
         window.onpopstate = () => history.go(1);
-        
         fetchPaymentDetails();
     </script>
 </body>

@@ -21,13 +21,10 @@ if ($conn->connect_error) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Showcase Rumah Panggung Desa Mokobang</title>
 
-    <!-- Favicon -->
     <link rel="icon" href="image/logo.png" type="image/x-icon">
 
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 
-    <!-- Google Fonts for button text -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
@@ -601,8 +598,7 @@ section {
 </head>
 <body>
 
-    <!-- Header -->
-<header>
+    <header>
     <div class="logo">
         <img src="image/logo-showcase.png" alt="Showcase Logo">
     </div>
@@ -620,32 +616,27 @@ section {
             <li><a href="kontak.php" class="button-18"><i class="fas fa-phone"></i>&nbsp; Kontak</a></li>
 
             <?php if (isset($_SESSION['username'])): ?>
-                <!-- If user is logged in -->
+                <li><a href="daftar-pembelian.php" class="button-18"><i class="fas fa-receipt"></i>&nbsp; Daftar Pembelian</a></li>
                 <li><a href="logout.php" class="button-18"><i class="fas fa-sign-out-alt"></i>&nbsp; Logout</a></li>
             <?php else: ?>
-                <!-- If user is not logged in -->
                 <li><a href="login.php" class="button-18"><i class="fas fa-sign-in-alt"></i>&nbsp; Login</a></li>
             <?php endif; ?>
         </ul>
     </nav>
-                    <!-- Burger Menu for small screens -->
-    <div class="burger-menu">
+                    <div class="burger-menu">
         <span></span>
         <span></span>
         <span></span>
     </div>
 </header>
 
-    <!-- Main Content -->
-<main>
-    <!-- Section 1: Profil -->
+    <main>
     <section id="profil">
         <h2>Profil Rumah Panggung Desa Mokobang</h2>
         <p>Desa Mokobang terkenal dengan rumah panggung tradisional yang memiliki ciri khas dan keunikan tersendiri. Rumah panggung di desa ini dibuat dengan bahan-bahan alami yang ramah lingkungan dan memiliki desain yang kental dengan budaya lokal.</p>
         <a href="profil.php" class="custom-button">Lihat Profil Lebih Lanjut</a>
     </section>
 
-    <!-- Section 2: Penjelasan Produk -->
     <section id="produk">
         <div class="section-content">
             <img src="image/gambar5.png" alt="Penjelasan Produk" class="section-image">
@@ -657,7 +648,6 @@ section {
         </div>
     </section>
 
-    <!-- Section 3: Kontak -->
     <section id="kontak">
         <div class="section-content">
             <div class="section-description">
@@ -670,9 +660,7 @@ section {
     </section>
 </main>
 
-<!-- Footer Section -->
 <footer>
-    <!-- Kolom Kiri: Logo dan Deskripsi -->
     <div class="footer-left">
         <img src="image/logo.png" alt="Logo Showcase Rumah Panggung Mokobang">
         <div class="profile-desc">
@@ -680,9 +668,7 @@ section {
         </div>
     </div>
 
-    <!-- Kolom Kanan: Kontak dan Quick Links -->
     <div class="footer-right">
-        <!-- Kontak Info -->
         <div class="contact-info">
             <h3>Kontak</h3>
             <p>Telepon: 0812-3456-7890</p>
@@ -691,7 +677,6 @@ section {
             <p>Jam Layanan: Senin – Sabtu (08.00 – 17.00 WITA)</p>
         </div>
 
-        <!-- Quick Links -->
         <div class="quick-links">
             <h3>Quick Links</h3>
             <ul>
@@ -704,7 +689,6 @@ section {
         </div>
     </div>
 
-    <!-- Copyright -->
     <div class="copyright">
         <p>Copyright &copy; 2025 Showcase Rumah Panggung Desa Mokobang | All Rights Reserved.</p>
     </div>

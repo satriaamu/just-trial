@@ -47,7 +47,6 @@ $products_result = $conn->query("SELECT id, tipe FROM katalog ORDER BY tipe ASC"
             <li><a href="admin-billing.php"><i class="fas fa-file-invoice-dollar"></i> Buat Billing</a></li>
             <li><a href="history.php"><i class="fas fa-comments-dollar"></i> Penawaran & Chat</a></li>
             <li><a href="admin-katalog.php"><i class="fas fa-clipboard-list"></i> Kelola Katalog</a></li>
-            <li><a href="admin-pesan.php"><i class="fas fa-envelope"></i> Pesan Kontak</a></li>
             <li><a href="admin-logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
     </div>
@@ -122,7 +121,6 @@ $products_result = $conn->query("SELECT id, tipe FROM katalog ORDER BY tipe ASC"
                 body: JSON.stringify(data)
             })
             .then(res => {
-                // FIX 3: Logika untuk memberikan pesan error yang lebih jelas
                 if (!res.ok) {
                     return res.json().then(err => { throw new Error(err.message || `Server merespons dengan status ${res.status}`) });
                 }
