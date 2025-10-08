@@ -21,36 +21,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $db_pass = '068e67cf-073f-7e33-8000-c7299acc4133';
 
         try {
-             $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
+            $dsn = "mysql:host={$db_host};port={$db_port};dbname={$db_name};charset=utf8mb4";
             $pdo = new PDO($dsn, $db_user, $db_pass);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Koneksi gagal: " . $e->getMessage());
-        }   
-            // Cek apakah username sudah ada
-            $stmt_check = $conn->prepare("SELECT id FROM admins WHERE username = ?");
-            $stmt_check->bind_param("s", $username);
-            $stmt_check->execute();
-            $result_check = $stmt_check->get_result();
 
-            if ($result_check->num_rows > 0) {
+            // Cek apakah username sudah ada (menggunakan PDO)
+            $stmt_check = $pdo->prepare("SELECT id FROM admins WHERE username = ?");
+            $stmt_check->execute([$username]);
+
+            if ($stmt_check->rowCount() > 0) {
                 $pesan = '<div class="message error">Username "' . htmlspecialchars($username) . '" sudah digunakan. Silakan pilih yang lain.</div>';
             } else {
-                // Masukkan admin baru ke database
-                $stmt_insert = $conn->prepare("INSERT INTO admins (username, password, full_name) VALUES (?, ?, ?)");
-                $stmt_insert->bind_param("sss", $username, $hashed_password, $full_name);
+                // Masukkan admin baru ke database (menggunakan PDO)
+                $stmt_insert = $pdo->prepare("INSERT INTO admins (username, password, full_name) VALUES (?, ?, ?)");
                 
-                if ($stmt_insert->execute()) {
+                if ($stmt_insert->execute([$username, $hashed_password, $full_name])) {
                     $pesan = '<div class="message success">Admin baru dengan username "' . htmlspecialchars($username) . '" berhasil dibuat! Akun ini sekarang bisa digunakan untuk login.<br><strong>PERINGATAN: Demi keamanan, segera hapus file ini (buat-admin.php) dari server Anda.</strong></div>';
                 } else {
-                    $pesan = '<div class="message error">Gagal membuat admin baru: ' . $stmt_insert->error . '</div>';
+                    $pesan = '<div class="message error">Gagal membuat admin baru.</div>';
                 }
-                $stmt_insert->close();
             }
-            $stmt_check->close();
-            $conn->close();
+        } catch (PDOException $e) {
+            // Menampilkan pesan error yang lebih umum kepada pengguna
+            $pesan = '<div class="message error">Terjadi kesalahan pada database: ' . $e->getMessage() . '</div>';
         }
+        // Menutup koneksi PDO
+        $pdo = null;
     }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
