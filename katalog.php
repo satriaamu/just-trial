@@ -1,8 +1,11 @@
 <?php
 session_start();
 // Koneksi ke database
-require_once 'config.php';
-$conn = getMysqliConnection();
+$conn = new mysqli("localhost", "root", "", "mokobang");
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
+}
+$conn->set_charset("utf8mb4");
 
 // Query untuk mengambil semua produk dari katalog
 $sql = "SELECT * FROM katalog";

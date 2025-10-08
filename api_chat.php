@@ -5,8 +5,11 @@ header('Content-Type: application/json');
 $response = [];
 
 try {
-require_once 'config.php';
-$conn = getMysqliConnection();
+    $conn = new mysqli("localhost", "root", "", "mokobang");
+    if ($conn->connect_error) {
+        throw new Exception('Koneksi Database Gagal', 500);
+    }
+    $conn->set_charset("utf8mb4");
 
     $is_admin = isset($_SESSION['admin_id']);
     $user_id = $_SESSION['user_id'] ?? 0;

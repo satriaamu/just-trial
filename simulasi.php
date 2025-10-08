@@ -1,7 +1,8 @@
 <?php
 session_start();
-require_once 'config.php';
-$conn = getMysqliConnection();
+$conn = new mysqli("localhost", "root", "", "mokobang");
+if ($conn->connect_error) { die("Koneksi gagal: " . $conn->connect_error); }
+$conn->set_charset("utf8mb4");
 
 $product_id = intval($_GET['product_id'] ?? 0);
 if ($product_id === 0) {

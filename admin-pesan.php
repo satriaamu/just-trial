@@ -3,8 +3,18 @@
 session_start();
 
 // Data koneksi database
-require_once 'config.php';
-$pdo = getPdoConnection();
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "mokobang";
+
+// Membuat koneksi dengan PDO
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Koneksi gagal: " . $e->getMessage());
+}
 
 // Handle form submissions with redirects
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

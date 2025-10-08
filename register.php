@@ -1,7 +1,15 @@
 <?php
 // Koneksi ke database
-require_once 'config.php';
-$conn = getMysqliConnection();
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "mokobang";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
 // Proses registrasi
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

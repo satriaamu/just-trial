@@ -7,8 +7,9 @@ $response = [];
 
 try {
     // --- Koneksi Database ---
-require_once 'config.php';
-$conn = getMysqliConnection();
+    $conn = new mysqli("localhost", "root", "", "mokobang");
+    if ($conn->connect_error) { throw new Exception('Koneksi Database Gagal', 500); }
+    $conn->set_charset("utf8mb4");
 
     // --- Cek Autentikasi ---
     $is_admin = isset($_SESSION['admin_id']);

@@ -8,11 +8,10 @@ if (isset($_SESSION['admin_id'])) {
 }
 
 $error_message = '';
-    require_once 'config.php';
-    $conn = getMysqliConnection();
-
-     if (!$conn) { // Cek jika koneksi gagal dari fungsi
-    $error_message = "Koneksi ke database gagal.";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $conn = new mysqli("localhost", "root", "", "mokobang");
+    if ($conn->connect_error) {
+        $error_message = "Koneksi ke database gagal.";
     } else {
         $stmt = $conn->prepare("SELECT id, username, password FROM admins WHERE username = ?");
         $stmt->bind_param("s", $_POST['username']);
@@ -38,6 +37,7 @@ $error_message = '';
         }
         $error_message = "Username atau password salah!";
     }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
