@@ -67,7 +67,11 @@ try {
                 throw new Exception('Data tidak lengkap atau tidak valid.', 400);
             }
             $total_bill = $deal_price + $shipping_cost;
-            $virtual_account = '8' . str_pad(mt_rand(0, 999999999999999), 15, '0', STR_PAD_LEFT);
+            $randomNumber = '';
+            for ($i = 0; $i < 15; $i++) {
+                $randomNumber .= mt_rand(0, 9);
+            }
+            $virtual_account = '8' . $randomNumber;
             $payment_deadline = date('Y-m-d H:i:s', strtotime('+7 days'));
             $billing_number = 'INV-' . time() . $billing_user_id;
             $stmt = $conn->prepare("INSERT INTO transactions (user_id, product_id, harga_awal, deal_price, shipping_cost, total_bill, status, billing_number, virtual_account, payment_deadline) VALUES (?, ?, ?, ?, ?, ?, 'awaiting_payment', ?, ?, ?)");
@@ -247,7 +251,11 @@ try {
             }
 
             $total_bill = $deal_price + $shipping_cost;
-            $virtual_account = '8' . str_pad(mt_rand(0, 999999999999999), 15, '0', STR_PAD_LEFT);
+            $randomNumber = '';
+            for ($i = 0; $i < 15; $i++) {
+                $randomNumber .= mt_rand(0, 9);
+            }
+            $virtual_account = '8' . $randomNumber;
             $payment_deadline = date('Y-m-d H:i:s', strtotime('+7 days'));
             $billing_number = 'INV-' . time() . $transaction_id;
 
