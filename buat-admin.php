@@ -14,10 +14,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         // Koneksi ke database
-        $conn = new mysqli("localhost", "root", "", "mokobang");
-        if ($conn->connect_error) {
-            $pesan = '<div class="message error">Koneksi database gagal: ' . $conn->connect_error . '</div>';
-        } else {
+require_once 'config.php';
+$conn = getMysqliConnection();
+
+// Cek koneksi di-handle di dalam fungsi, jadi kita bisa langsung pakai
+if (!$conn) {
+     $pesan = '<div class="message error">Koneksi database gagal.</div>';
+} else {
             // Cek apakah username sudah ada
             $stmt_check = $conn->prepare("SELECT id FROM admins WHERE username = ?");
             $stmt_check->bind_param("s", $username);

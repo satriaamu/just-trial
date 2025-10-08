@@ -3,13 +3,8 @@ session_start();
 header('Content-Type: application/json');
 
 $response = [];
-$conn = new mysqli("localhost", "root", "", "mokobang");
-if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Database connection failed']);
-    exit();
-}
-$conn->set_charset("utf8mb4");
+require_once 'config.php';
+$conn = getMysqliConnection();
 
 $action = $_GET['action'] ?? '';
 $is_admin = isset($_SESSION['admin_id']);

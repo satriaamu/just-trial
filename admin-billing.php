@@ -5,9 +5,8 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-$conn = new mysqli("localhost", "root", "", "mokobang");
-// FIX: Mengatur charset koneksi untuk memperbaiki tampilan nama produk
-$conn->set_charset("utf8mb4");
+require_once 'config.php';
+$conn = getMysqliConnection();
 
 // Ambil daftar user dan produk
 $users_result = $conn->query("SELECT id, username FROM users ORDER BY username ASC");

@@ -13,9 +13,8 @@ if ($transaction_id === 0) {
     die("ID Transaksi tidak valid.");
 }
 
-$conn = new mysqli("localhost", "root", "", "mokobang");
-if ($conn->connect_error) { die("Koneksi gagal: " . $conn->connect_error); }
-$conn->set_charset("utf8mb4");
+require_once 'config.php';
+$conn = getMysqliConnection();
 
 $is_admin = isset($_SESSION['admin_id']);
 $user_id = $_SESSION['user_id'] ?? 0;

@@ -9,18 +9,9 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 // Data koneksi database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mokobang";
-
-// Membuat koneksi dengan PDO untuk keamanan dan kemudahan
-try {
-    $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Koneksi gagal: " . $e->getMessage());
-}
+// Memasukkan file konfigurasi dan membuat koneksi
+require_once 'config.php';
+$pdo = getPdoConnection();
 
 // Handle semua operasi CRUD (Create, Read, Update, Delete)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {

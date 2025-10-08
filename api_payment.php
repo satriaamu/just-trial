@@ -22,12 +22,8 @@ if (empty($virtual_account)) {
     die(json_encode(['status' => 'error', 'message' => 'Nomor Virtual Account tidak boleh kosong.']));
 }
 
-$conn = new mysqli("localhost", "root", "", "mokobang");
-if ($conn->connect_error) {
-    http_response_code(500);
-    die(json_encode(['status' => 'error', 'message' => 'Koneksi database gagal.']));
-}
-$conn->set_charset("utf8mb4");
+require_once 'config.php';
+$conn = getMysqliConnection();
 
 // Fungsi addLog disalin ke sini untuk digunakan
 function addLog($conn, $trxId, $sender, $message) {

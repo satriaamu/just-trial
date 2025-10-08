@@ -2,16 +2,8 @@
 session_start();
 
 // Koneksi ke database
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mokobang";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once 'config.php';
+$conn = getMysqliConnection();
 ?>
 
 <!DOCTYPE html>
