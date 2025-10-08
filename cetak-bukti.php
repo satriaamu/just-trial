@@ -1,11 +1,12 @@
 <?php
 session_start();
-// Pastikan path ke FPDF benar
-require_once('fpdf.php');
+// Menentukan path untuk font FPDF sebelum memanggil pustaka
+define('FPDF_FONTPATH', __DIR__ . '/');
+require('fpdf.php');
 
-// --- Kode otentikasi dan query database ---
+// Kode otentikasi dan query database
 if (!isset($_SESSION['user_id']) && !isset($_SESSION['admin_id'])) {
-    die("Akses ditolak. Silakan login terlebih dahulu.");
+    die("Akses ditolak.");
 }
 
 $transaction_id = intval($_GET['id'] ?? 0);
@@ -13,7 +14,6 @@ if ($transaction_id === 0) {
     die("ID Transaksi tidak valid.");
 }
 
-// --- Koneksi Database menggunakan PDO ---
 $db_host = 'db.fr-pari1.bengt.wasmernet.com';
 $db_port = 10272;
 $db_name = 'mokobang';
@@ -31,7 +31,6 @@ try {
 $is_admin = isset($_SESSION['admin_id']);
 $user_id = $_SESSION['user_id'] ?? 0;
 
-// --- Pengambilan data transaksi menggunakan PDO ---
 $sql = "SELECT t.*, u.username, u.email, k.tipe as product_name
         FROM transactions t
         JOIN users u ON t.user_id = u.id
@@ -49,13 +48,14 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $trx = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$trx || $trx['status'] !== 'paid') {
+
+if (!$trx || ($trx['status'] !== 'paid' && $trx['status'] !== 'completed')) {
     die("Bukti pembayaran tidak ditemukan atau transaksi belum lunas.");
 }
 
-// --- Kelas PDF (FPDF) ---
 class PDF extends FPDF
 {
+    // Header Halaman
     function Header()
     {
         $this->Image('image/logo.png', 10, 6, 30);
@@ -67,6 +67,7 @@ class PDF extends FPDF
         $this->Ln(5);
     }
 
+    // Footer Halaman
     function Footer()
     {
         $this->SetY(-15);
@@ -74,6 +75,7 @@ class PDF extends FPDF
         $this->Cell(0, 10, 'Dokumen ini valid dan dicetak dari sistem Showcase Rumah Panggung Desa Mokobang.', 0, 0, 'C');
     }
 
+    // Fungsi untuk membuat bagian informasi (key-value)
     function InfoSection($title, $data)
     {
         $this->SetFont('Arial', 'B', 12);
@@ -88,11 +90,12 @@ class PDF extends FPDF
         $this->Ln(4);
     }
 
+    // Fungsi untuk membuat tabel rincian tagihan
     function BillingTable($header, $data)
     {
         $this->SetFillColor(230, 230, 230);
         $this->SetFont('Arial', 'B', 11);
-        $w = array(130, 60);
+        $w = array(130, 60); // Lebar kolom
         for ($i = 0; $i < count($header); $i++) {
             $this->Cell($w[$i], 8, $header[$i], 1, 0, 'C', true);
         }
@@ -108,7 +111,7 @@ class PDF extends FPDF
     }
 }
 
-// --- Pembuatan PDF ---
+// Inisiasi objek PDF
 $pdf = new PDF();
 $pdf->AddPage();
 
@@ -143,7 +146,8 @@ $pdf->Cell(130, 8, 'TOTAL PEMBAYARAN', 1, 0, 'R');
 $pdf->Cell(60, 8, 'Rp ' . number_format($trx['total_bill'], 0, ',', '.'), 1, 1, 'R');
 $pdf->Ln(5);
 
-// Detail kustomisasi dan catatan
+// --- PERUBAHAN UTAMA DI SINI ---
+// Menambahkan detail kustomisasi dan catatan ke dalam PDF
 $custom_details = json_decode($trx['customization_details'] ?? '[]', true);
 if (is_array($custom_details) && !empty($custom_details)) {
     $pdf->SetFont('Arial', 'B', 11);
@@ -166,11 +170,11 @@ if (!empty($trx['negotiation_notes'])) {
 }
 
 // Tanda LUNAS
-$pdf->SetY(-80);
+$pdf->SetY(-80); // Atur posisi vertikal untuk tanda LUNAS
 $pdf->SetFont('Arial', 'B', 48);
 $pdf->SetTextColor(40, 167, 69);
 $pdf->Cell(0,10,'LUNAS',0,1,'C');
 
-// Output PDF
+
 $pdf->Output('D', 'bukti_pembayaran_' . $trx['billing_number'] . '.pdf');
 ?>
