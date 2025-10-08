@@ -26,10 +26,15 @@ try {
     $action = $data['action'] ?? $_GET['action'] ?? '';
     if (empty($action)) throw new Exception('Aksi tidak dispesifikasikan.', 400);
 
+    // --- FUNGSI YANG DIPERBAIKI ---
     function addLog($conn, $trxId, $sender, $message, $isOffer = 0, $offerValue = null) {
         $stmt = $conn->prepare("INSERT INTO chats (transaction_id, sender_type, message, is_offer, offer_value, read_by_admin) VALUES (?, ?, ?, ?, ?, ?)");
         $read_by_admin = ($sender === 'admin' || $sender === 'system') ? 1 : 0;
-        $stmt->bind_param("issidi", $trxId, $sender, $message, $isOffer, $offerValue, $read_by_admin);
+        
+        // Perbaikan: bind_param() lebih aman jika menerima variabel, bukan nilai null langsung.
+        $boundOfferValue = $offerValue;
+
+        $stmt->bind_param("issidi", $trxId, $sender, $message, $isOffer, $boundOfferValue, $read_by_admin);
         $stmt->execute();
     }
     
