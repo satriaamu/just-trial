@@ -225,7 +225,7 @@ if (isset($_GET['edit'])) {
                             <?php foreach(json_decode($editData['gambar']) as $image): ?>
                                 <div class="image-preview-item">
                                     <img src="<?php echo htmlspecialchars(str_replace('\\', '/', $image)); ?>" alt="Preview">
-                                    <input type="hidden" name="existing_images[]" value="<?php echo htmlspecialchars($image); ?>">
+                                    <input type="hidden" name="existing_images[]" value="<?php echo htmlspecialchars(str_replace('\\', '/', $image)); ?>">
                                     <button type="button" class="remove-image-btn" onclick="this.parentElement.remove()">×</button>
                                 </div>
                             <?php endforeach; ?>
